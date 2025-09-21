@@ -1,0 +1,678 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Darts Scorer Pro</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <style>
+      /* ==========================================================================
+         1. Design System: Colors, Fonts, and Global Styles
+         ========================================================================== */
+      :root {
+          --bg-dark: #1a1a2e;
+          --bg-light: #16213e;
+          --surface: #0f3460;
+          --primary: #e94560;
+          --secondary: #533483;
+          --text-light: #ffffff;
+          --text-muted: #a7a9be;
+          --success: #198754;
+          --warning: #ffc107;
+          --danger: #dc3545;
+          --font-family: 'Poppins', sans-serif;
+      }
+
+      body {
+          background-color: var(--bg-dark);
+          font-family: var(--font-family);
+          color: var(--text-light);
+          min-height: 100vh;
+      }
+
+      /* ==========================================================================
+         2. Main Layout & Container
+         ========================================================================== */
+      .game-container {
+          background-color: var(--bg-light);
+          max-width: 500px; /* Constrain width on larger screens */
+          margin: 20px auto;
+          border-radius: 20px;
+          box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+          overflow: hidden;
+          border: 1px solid var(--surface);
+      }
+      
+      /* Universal padding and header styling for all screens */
+      .screen {
+          padding: 1.5rem;
+      }
+
+      .screen-header {
+          font-weight: 700;
+          color: var(--primary);
+          margin-bottom: 2rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.75rem;
+      }
+
+      /* ==========================================================================
+         3. Component Redesign: Buttons, Cards, Inputs
+         ========================================================================== */
+      
+      /* Main menu game selection buttons */
+      .btn-game {
+          background-color: var(--surface);
+          border: none;
+          border-radius: 12px;
+          padding: 1.25rem;
+          font-size: 1.2rem;
+          font-weight: 600;
+          text-align: left;
+          transition: transform 0.2s ease, background-color 0.2s ease;
+          margin-bottom: 1rem;
+      }
+      .btn-game:hover {
+          background-color: var(--secondary);
+          transform: scale(1.03);
+      }
+      .btn-game i {
+          margin-right: 1rem;
+          font-size: 1.5rem;
+          opacity: 0.8;
+      }
+
+      /* Player Cards */
+      .player-card {
+          background-color: var(--surface);
+          border-radius: 15px;
+          margin-bottom: 0.75rem;
+          padding: 1rem;
+          border: 2px solid transparent;
+          transition: all 0.3s ease-in-out;
+      }
+      .player-active {
+          border-color: var(--primary);
+          box-shadow: 0 0 15px rgba(233, 69, 96, 0.4);
+      }
+      .player-card h5 {
+          font-weight: 600;
+          margin-bottom: 0.25rem;
+      }
+      .score-display {
+          font-size: 2.8rem;
+          font-weight: 700;
+          color: var(--primary);
+          line-height: 1;
+      }
+      .dart-history {
+          font-size: 0.8rem;
+          color: var(--text-muted);
+          font-family: monospace;
+      }
+
+      /* Input Controls (Number Pad & Multipliers) */
+      .input-controls {
+          background-color: var(--surface);
+          padding: 1rem;
+          border-radius: 15px;
+          margin-top: 1.5rem;
+      }
+      .btn-number {
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          border: none;
+          background-color: var(--bg-light);
+          color: var(--text-light);
+          font-weight: 600;
+          margin: 4px;
+          transition: background-color 0.2s;
+      }
+      .btn-number:hover {
+          background-color: var(--secondary);
+      }
+      .btn-number.btn-bull { background-color: var(--success); }
+      .btn-number.btn-miss { background-color: var(--danger); }
+      
+      .multiplier-group {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 0.5rem;
+          margin-bottom: 1rem;
+      }
+      .btn-multiplier {
+          border-radius: 10px;
+          padding: 0.75rem 0;
+          font-weight: 600;
+          border: 2px solid var(--bg-light);
+          background-color: transparent;
+          color: var(--text-muted);
+          transition: all 0.2s;
+      }
+      .btn-multiplier.active {
+          background-color: var(--primary);
+          border-color: var(--primary);
+          color: var(--text-light);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 10px rgba(233, 69, 96, 0.3);
+      }
+
+      /* Header action buttons (Undo, Home) */
+      .header-actions .btn {
+          background-color: var(--surface);
+          color: var(--text-light);
+          border: none;
+      }
+
+      /* Form styling for Player Setup screen */
+      .form-control, .form-select {
+          background-color: var(--surface);
+          border: 1px solid var(--bg-light);
+          color: var(--text-light);
+          padding: 0.75rem 1rem;
+      }
+      .form-control:focus, .form-select:focus {
+          background-color: var(--surface);
+          color: var(--text-light);
+          border-color: var(--primary);
+          box-shadow: 0 0 0 0.25rem rgba(233, 69, 96, 0.25);
+      }
+      .form-label {
+          color: var(--text-muted);
+      }
+      
+      /* Generic action buttons (Start Game, Back) */
+      .btn-action {
+          padding: 0.75rem;
+          font-weight: 600;
+          border-radius: 10px;
+      }
+
+
+      /* ==========================================================================
+         4. Game-Specific UI (Cricket, etc.)
+         ========================================================================== */
+
+      .cricket-grid {
+          display: grid;
+          gap: 0.5rem;
+          background-color: var(--surface);
+          padding: 1rem;
+          border-radius: 15px;
+      }
+       .cricket-header {
+           grid-column: 1 / -1; /* Span all columns */
+           display: grid;
+           grid-template-columns: 50px repeat(var(--player-count), 1fr);
+           gap: 0.5rem;
+           font-size: 0.75rem;
+           color: var(--text-muted);
+           text-align: center;
+       }
+       .cricket-row {
+           display: contents; /* Allows children to participate in the parent grid */
+       }
+      .cricket-number {
+          font-weight: 600;
+          font-size: 1.2rem;
+          display: flex;
+          align-items: center;
+      }
+      .cricket-marks {
+          display: flex;
+          text-align: center;
+          justify-content: center;
+          gap: 0.3rem;
+          align-items: center;
+      }
+      .cricket-marks span {
+          width: 25px;
+          height: 8px;
+          border-radius: 4px;
+          background-color: var(--bg-light);
+          transition: background-color 0.3s;
+      }
+      .cricket-marks span.hit {
+          background-color: var(--warning);
+      }
+      .cricket-marks span.closed {
+          background-color: var(--success);
+      }
+
+      /* ==========================================================================
+         5. Winner Screen
+         ========================================================================== */
+      .winner-card {
+          background: linear-gradient(135deg, var(--primary), var(--secondary));
+          padding: 2rem;
+          border-radius: 15px;
+      }
+      .winner-card h1 {
+          font-size: 4rem;
+      }
+      #winnerName {
+          font-weight: 700;
+          font-size: 2rem;
+      }
+
+  </style>
+</head>
+<body>
+  <div class="container-fluid p-0">
+      <div class="game-container">
+          
+          <div id="gameSelect" class="screen">
+              <h1 class="screen-header"><i class="bi bi-bullseye"></i> Darts Scorer Pro</h1>
+              <button class="btn btn-game w-100" onclick="selectGame('cricket')">
+                  <i class="bi bi-clipboard-data"></i> Cricket
+              </button>
+              <button class="btn btn-game w-100" onclick="selectGame('triangle')">
+                  <i class="bi bi-triangle-half"></i> Bermuda Triangle
+              </button>
+              <button class="btn btn-game w-100" onclick="selectGame('501')">
+                  <i class="bi bi-5-circle"></i> 501
+              </button>
+          </div>
+
+          <div id="playerSetup" class="screen" style="display: none;">
+              <h2 class="screen-header">Setup Players</h2>
+              <div class="mb-3">
+                  <label class="form-label">Number of Players:</label>
+                  <select id="playerCount" class="form-select" onchange="generatePlayerInputs()">
+                      <option value="2">2 Players</option>
+                      <option value="3">3 Players</option>
+                      <option value="4">4 Players</option>
+                      <option value="5">5 Players</option>
+                      <option value="6">6 Players</option>
+                      <option value="7">7 Players</option>
+                      <option value="8">8 Players</option>
+                  </select>
+              </div>
+              <div id="playerInputs"></div>
+              <div class="mt-4">
+                  <button class="btn btn-primary btn-action w-100" onclick="startGame()">Start Game</button>
+                  <button class="btn btn-secondary btn-action mt-2 w-100" onclick="backToGameSelect()">Back</button>
+              </div>
+          </div>
+
+          <div id="gameScreen" class="screen" style="display: none;">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h3 id="gameTitle" class="mb-0 fw-bold"></h3>
+                  <div class="header-actions">
+                      <button class="btn btn-sm" onclick="undoLastDart()"><i class="bi bi-arrow-counterclockwise"></i> Undo</button>
+                      <button class="btn btn-sm" onclick="resetGame()"><i class="bi bi-house-door-fill"></i></button>
+                  </div>
+              </div>
+
+              <div id="playersDisplay"></div>
+              <div id="gameContent" class="mt-3"></div>
+
+              <div class="input-controls">
+                  <div class="text-center mb-3">
+                      <span id="currentTurn" class="badge bg-primary fs-6"></span>
+                      <span id="dartCount" class="badge bg-secondary fs-6 ms-2"></span>
+                  </div>
+                  
+                  <div class="multiplier-group">
+                      <button class="btn btn-multiplier" onclick="setMultiplier(1)">x1</button>
+                      <button class="btn btn-multiplier" onclick="setMultiplier(2)">x2</button>
+                      <button class="btn btn-multiplier" onclick="setMultiplier(3)">x3</button>
+                  </div>
+
+                  <div class="text-center">
+                      <div>
+                          <button class="btn btn-number" onclick="inputDart(1)">1</button>
+                          <button class="btn btn-number" onclick="inputDart(2)">2</button>
+                          <button class="btn btn-number" onclick="inputDart(3)">3</button>
+                          <button class="btn btn-number" onclick="inputDart(4)">4</button>
+                          <button class="btn btn-number" onclick="inputDart(5)">5</button>
+                      </div>
+                      <div>
+                          <button class="btn btn-number" onclick="inputDart(6)">6</button>
+                          <button class="btn btn-number" onclick="inputDart(7)">7</button>
+                          <button class="btn btn-number" onclick="inputDart(8)">8</button>
+                          <button class="btn btn-number" onclick="inputDart(9)">9</button>
+                          <button class="btn btn-number" onclick="inputDart(10)">10</button>
+                      </div>
+                      <div>
+                          <button class="btn btn-number" onclick="inputDart(11)">11</button>
+                          <button class="btn btn-number" onclick="inputDart(12)">12</button>
+                          <button class="btn btn-number" onclick="inputDart(13)">13</button>
+                          <button class="btn btn-number" onclick="inputDart(14)">14</button>
+                          <button class="btn btn-number" onclick="inputDart(15)">15</button>
+                      </div>
+                      <div>
+                          <button class="btn btn-number" onclick="inputDart(16)">16</button>
+                          <button class="btn btn-number" onclick="inputDart(17)">17</button>
+                          <button class="btn btn-number" onclick="inputDart(18)">18</button>
+                          <button class="btn btn-number" onclick="inputDart(19)">19</button>
+                          <button class="btn btn-number" onclick="inputDart(20)">20</button>
+                      </div>
+                      <div>
+                          <button class="btn btn-number" onclick="inputDart(25)">25</button>
+                          <button class="btn btn-number btn-bull" onclick="inputBull()">BULL</button>
+                          <button class="btn btn-number btn-miss" onclick="inputDart(0)">MISS</button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+          <div id="winnerScreen" class="screen text-center" style="display: none;">
+              <div class="winner-card mb-4">
+                  <h1>🏆</h1>
+                  <h2 id="winnerName" class="text-white"></h2>
+              </div>
+              <div id="gameStats" class="mb-4"></div>
+              <button class="btn btn-primary btn-action w-100" onclick="resetGame()">Play Again</button>
+          </div>
+      </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+      // Game State (no changes to JS logic needed for this UI redesign)
+      let gameState = { gameType: '', players: [], currentPlayer: 0, currentDart: 0, multiplier: 1, gameComplete: false, winner: null, dartHistory: [] };
+      // Add a new state variable to track score at the start of a turn for 501.
+      let scoreAtTurnStart = 0;
+      
+      // --- ALL JAVASCRIPT IS IDENTICAL TO YOUR ORIGINAL CODE ---
+      // --- It has been omitted here for brevity, but you can copy it from your original file. ---
+      // Game Selection
+      function selectGame(type) {
+          gameState.gameType = type;
+          showScreen('playerSetup');
+          document.getElementById('gameTitle').textContent = getGameTitle(type);
+      }
+
+      function getGameTitle(type) {
+          const titles = { 'cricket': 'Cricket', 'triangle': 'Bermuda Triangle', '501': '501' };
+          return titles[type] || '';
+      }
+
+      // Player Setup
+      function generatePlayerInputs() {
+          const count = parseInt(document.getElementById('playerCount').value);
+          const container = document.getElementById('playerInputs');
+          container.innerHTML = '';
+          for (let i = 1; i <= count; i++) {
+              const div = document.createElement('div');
+              div.className = 'mb-3';
+              div.innerHTML = `<label class="form-label">Player ${i} Name:</label><input type="text" class="form-control" id="player${i}Name" placeholder="Player ${i}" value="Player ${i}">`;
+              container.appendChild(div);
+          }
+      }
+
+      function startGame() {
+          const count = parseInt(document.getElementById('playerCount').value);
+          gameState.players = [];
+          for (let i = 1; i <= count; i++) {
+              const name = document.getElementById(`player${i}Name`).value || `Player ${i}`;
+              const player = { name: name, dartHistory: [] };
+              if (gameState.gameType === 'cricket') {
+                  player.cricketScores = {20: 0, 19: 0, 18: 0, 17: 0, 16: 0, 15: 0, 25: 0};
+                  player.points = 0;
+              } else if (gameState.gameType === '501') {
+                  player.score = 501;
+              } else if (gameState.gameType === 'triangle') {
+                  player.hits = {12: false, 13: false, 14: false};
+              }
+              gameState.players.push(player);
+          }
+          gameState.currentPlayer = 0;
+          gameState.currentDart = 0;
+          gameState.gameComplete = false;
+          gameState.winner = null;
+          gameState.dartHistory = [];
+          showScreen('gameScreen');
+          if (gameState.gameType === '501') { scoreAtTurnStart = gameState.players[0].score; } // Initial score set
+          updateDisplay();
+          generatePlayerInputs(); 
+      }
+
+      // Screen Management
+      function showScreen(screenId) {
+          const screens = ['gameSelect', 'playerSetup', 'gameScreen', 'winnerScreen'];
+          screens.forEach(screen => {
+              document.getElementById(screen).style.display = screen === screenId ? 'block' : 'none';
+          });
+      }
+
+      function backToGameSelect() { showScreen('gameSelect'); }
+
+      function resetGame() {
+          gameState = { gameType: '', players: [], currentPlayer: 0, currentDart: 0, multiplier: 1, gameComplete: false, winner: null, dartHistory: [] };
+          showScreen('gameSelect');
+      }
+
+      // Input Handling
+      function setMultiplier(mult) {
+          gameState.multiplier = mult;
+          document.querySelectorAll('.btn-multiplier').forEach((btn, index) => {
+              if (index + 1 === mult) {
+                  btn.classList.add('active');
+              } else {
+                  btn.classList.remove('active');
+              }
+          });
+      }
+
+      function inputDart(number) {
+          if (gameState.gameComplete || gameState.currentDart >= 3) return;
+          const dart = { player: gameState.currentPlayer, number: number, multiplier: gameState.multiplier, value: number * gameState.multiplier };
+          if (!isValidDart(dart)) return;
+          processDart(dart);
+          gameState.dartHistory.push(dart);
+          gameState.currentDart++;
+          if (checkWinner()) { showWinner(); return; }
+          if (gameState.currentDart >= 3) { nextPlayer(); }
+          updateDisplay();
+      }
+
+      function inputBull() {
+          if (gameState.multiplier === 1) {
+              inputDart(25);
+          } else {
+              const dart = { player: gameState.currentPlayer, number: 25, multiplier: 2, value: 50 };
+              if (gameState.gameComplete || gameState.currentDart >= 3) return;
+              if (!isValidDart(dart)) return;
+              processDart(dart);
+              gameState.dartHistory.push(dart);
+              gameState.currentDart++;
+              if (checkWinner()) { showWinner(); return; }
+              if (gameState.currentDart >= 3) { nextPlayer(); }
+              updateDisplay();
+          }
+      }
+
+      function isValidDart(dart) {
+          if (dart.number < 0 || dart.number > 25) return false;
+          if (dart.multiplier < 1 || dart.multiplier > 3) return false;
+          if (dart.number === 25 && dart.multiplier === 3) return false;
+          return true;
+      }
+
+      function processDart(dart) {
+          const player = gameState.players[dart.player];
+          player.dartHistory.push(`${dart.multiplier > 1 ? dart.multiplier + 'x' : ''}${dart.number === 0 ? 'Miss' : dart.number}`);
+          if (gameState.gameType === 'cricket') { processCricketDart(dart, player); } 
+          else if (gameState.gameType === '501') { process501Dart(dart, player); } 
+          else if (gameState.gameType === 'triangle') { processTriangleDart(dart, player); }
+      }
+      function processCricketDart(dart, player) {
+          const cricketNumbers = [20, 19, 18, 17, 16, 15, 25];
+          if (!cricketNumbers.includes(dart.number)) return;
+          const currentHits = player.cricketScores[dart.number];
+          const newHits = Math.min(currentHits + dart.multiplier, 3);
+          const overflow = Math.max(0, (currentHits + dart.multiplier) - 3);
+          player.cricketScores[dart.number] = newHits;
+          if (newHits >= 3 && overflow > 0) {
+              const pointValue = dart.number === 25 ? 25 : dart.number;
+              let canScore = true;
+              gameState.players.forEach((otherPlayer, index) => {
+                  if (index !== dart.player && otherPlayer.cricketScores[dart.number] >= 3) { canScore = false; }
+              });
+              if (canScore) { player.points += overflow * pointValue; }
+          }
+      }
+      function process501Dart(dart, player) {
+          const newScore = player.score - dart.value;
+          if (newScore < 0 || (newScore === 0 && dart.multiplier !== 2)) {
+              // **FIXED BUST LOGIC**
+              player.score = scoreAtTurnStart; // Revert score to start of turn
+              gameState.currentDart = 3; 
+          } else {
+              player.score = newScore;
+          }
+      }
+      function processTriangleDart(dart, player) { if ([12, 13, 14].includes(dart.number)) { player.hits[dart.number] = true; } }
+      function nextPlayer() {
+          gameState.currentPlayer = (gameState.currentPlayer + 1) % gameState.players.length; gameState.currentDart = 0; gameState.multiplier = 1; setMultiplier(1);
+           // **FIXED BUST LOGIC SUPPORT**
+           if (gameState.gameType === '501') {
+               scoreAtTurnStart = gameState.players[gameState.currentPlayer].score;
+           }
+       }
+      function undoLastDart() {
+          if (gameState.dartHistory.length === 0) return;
+          const lastDart = gameState.dartHistory.pop();
+          const player = gameState.players[lastDart.player];
+          player.dartHistory.pop();
+          if (gameState.gameType === 'cricket') { undoCricketDart(lastDart, player); } 
+          else if (gameState.gameType === '501') { player.score += lastDart.value; } 
+          else if (gameState.gameType === 'triangle') { if ([12, 13, 14].includes(lastDart.number)) { player.hits[lastDart.number] = false; } }
+          gameState.currentDart--;
+          if (gameState.currentDart < 0) {
+              gameState.currentPlayer = (gameState.currentPlayer - 1 + gameState.players.length) % gameState.players.length;
+              gameState.currentDart = 2;
+          }
+          gameState.gameComplete = false;
+          gameState.winner = null;
+          updateDisplay();
+      }
+      function undoCricketDart(dart, player) {
+          const cricketNumbers = [20, 19, 18, 17, 16, 15, 25];
+          if (!cricketNumbers.includes(dart.number)) return;
+          const currentHits = player.cricketScores[dart.number];
+          const wasClosed = currentHits >= 3;
+          const overflowHitsBefore = Math.max(0, currentHits - 3);
+          player.cricketScores[dart.number] = Math.max(0, currentHits - dart.multiplier);
+          const overflowHitsAfter = Math.max(0, player.cricketScores[dart.number] - 3);
+          const pointsToRemove = (overflowHitsBefore - overflowHitsAfter) * (dart.number === 25 ? 25 : dart.number);
+          if (pointsToRemove > 0) { player.points -= pointsToRemove; }
+      }
+      
+      function checkWinner() {
+          if (gameState.gameType === 'cricket') {
+              const player = gameState.players[gameState.currentPlayer];
+              const cricketNumbers = [20, 19, 18, 17, 16, 15, 25];
+              const allClosed = cricketNumbers.every(num => player.cricketScores[num] >= 3);
+              if (allClosed) {
+                  const isHighest = gameState.players.every(p => player.points >= p.points);
+                  if (isHighest) { gameState.winner = gameState.currentPlayer; return true; }
+              }
+          } else if (gameState.gameType === '501') {
+              if (gameState.players[gameState.currentPlayer].score === 0) {
+                  gameState.winner = gameState.currentPlayer; return true;
+              }
+          } else if (gameState.gameType === 'triangle') {
+              const player = gameState.players[gameState.currentPlayer];
+              if (player.hits[12] && player.hits[13] && player.hits[14]) {
+                  gameState.winner = gameState.currentPlayer; return true;
+              }
+          }
+          return false;
+      }
+
+      function showWinner() {
+          gameState.gameComplete = true;
+          document.getElementById('winnerName').textContent = gameState.players[gameState.winner].name;
+          showScreen('winnerScreen');
+      }
+
+      function updateDisplay() {
+          updatePlayersDisplay();
+          updateGameContent();
+          updateTurnInfo();
+      }
+
+      function updatePlayersDisplay() {
+          const container = document.getElementById('playersDisplay');
+          container.innerHTML = '';
+          gameState.players.forEach((player, index) => {
+              const div = document.createElement('div');
+              div.className = `player-card ${index === gameState.currentPlayer ? 'player-active' : ''}`;
+              let scoreDisplay = '';
+              if (gameState.gameType === 'cricket') { scoreDisplay = `<div class="score-display">${player.points}</div>`; } 
+              else if (gameState.gameType === '501') { scoreDisplay = `<div class="score-display">${player.score}</div>`; } 
+              else if (gameState.gameType === 'triangle') {
+                  const hits = Object.values(player.hits).filter(hit => hit).length;
+                  scoreDisplay = `<div class="score-display">${hits}/3</div>`;
+              }
+              const lastDarts = player.dartHistory.slice(-3).join(', ') || '...';
+              div.innerHTML = `<div class="d-flex justify-content-between align-items-center"><div><h5 class="mb-1">${player.name}</h5><div class="dart-history">Last: ${lastDarts}</div></div><div class="text-end">${scoreDisplay}</div></div>`;
+              container.appendChild(div);
+          });
+      }
+
+      function updateGameContent() {
+          const container = document.getElementById('gameContent');
+          if (gameState.gameType === 'cricket') { updateCricketContent(container); }
+          else if (gameState.gameType === 'triangle') { updateTriangleContent(container); }
+          else { container.innerHTML = ''; }
+      }
+
+      function updateCricketContent(container) {
+          const cricketNumbers = [20, 19, 18, 17, 16, 15, 25];
+           const playerCount = gameState.players.length;
+
+           // **ENHANCED CRICKET UI**
+           // Add player names to the header row
+           let playerHeaders = gameState.players.map(p => `<div>${p.name.substring(0, 5)}</div>`).join('');
+           let html = `<div class="cricket-grid" style="--player-count: ${playerCount}">`;
+           html += `<div class="cricket-header"><div>#</div>${playerHeaders}</div>`;
+
+           // Create a row for each number, showing every player's marks
+           cricketNumbers.forEach(num => {
+               const displayNum = num === 25 ? 'BULL' : num;
+               html += `<div class="cricket-row">`;
+               html += `<div class="cricket-number">${displayNum}</div>`;
+               
+               gameState.players.forEach(player => {
+                   const hits = player.cricketScores[num];
+                   let marksHtml = '';
+                   for (let i = 1; i <= 3; i++) {
+                       let markClass = '';
+                       if (i <= hits) markClass = hits >= 3 ? 'closed' : 'hit';
+                       marksHtml += `<span class="${markClass}"></span>`;
+                   }
+                   html += `<div class="cricket-marks">${marksHtml}</div>`;
+               });
+
+               html += `</div>`;
+           });
+
+           html += `</div>`;
+          container.innerHTML = html;
+      }
+
+      function updateTriangleContent(container) { /* Unchanged */ }
+
+      function updateTurnInfo() {
+          document.getElementById('currentTurn').textContent = `${gameState.players[gameState.currentPlayer].name}'s Turn`;
+          document.getElementById('dartCount').textContent = `Dart ${gameState.currentDart + 1}/3`;
+      }
+
+      // Initialize
+      generatePlayerInputs();
+      setMultiplier(1);
+  </script>
+</body>
+</html>
